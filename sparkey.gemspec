@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Sparkey::VERSION
   spec.authors       = ["Adam Tanner"]
   spec.email         = ["adam@adamtanner.org"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{Ruby FFI bindings for Spotify's Sparkey}
+  spec.summary       = %q{Ruby FFI bindings for Spotify's Sparkey}
   spec.homepage      = ""
   spec.license       = "MIT"
 
