@@ -2,13 +2,13 @@ require "minitest/autorun"
 require "sparkey"
 require "sparkey/testing"
 
-describe Sparkey do
+describe Sparkey::Store do
   include Sparkey::Testing
 
   before { @filename = random_filename }
   after  { delete(@filename) }
 
-  it "functions as a key value store" do
+  it "functions as a key-value store" do
     sparkey = Sparkey::Store.create(@filename, :compression_snappy, 1000)
     sparkey.put("first", "Michael")
     sparkey.put("second", "Adam")
@@ -25,14 +25,11 @@ describe Sparkey do
 
     sparkey.size.must_equal 2
 
-    hash = Hash.new
+    collector = Hash.new
     sparkey.each do |key, value|
-      hash[key] = value
+      collector[key] = value
     end
 
-    hash.must_equal(
-      "first" => "Michael",
-      "third" => "Tanner"
-    )
+    collector.must_equal("first" => "Michael", "third" => "Tanner")
   end
 end

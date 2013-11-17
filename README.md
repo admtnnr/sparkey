@@ -1,11 +1,11 @@
 # Sparkey
 
-Ruby [FFI](https://github.com/ffi/ffi) bindings to Spotify's [Sparkey](https://github.com/spotify/sparkey) key value store.
+Ruby [FFI](https://github.com/ffi/ffi) bindings to Spotify's [Sparkey](https://github.com/spotify/sparkey) key-value store.
 
 ## Installation
 
 ### Requirements
-* `libsparkey` [Github](https://github.com/spotify/sparkey)
+* `libsparkey` ([Github](https://github.com/spotify/sparkey))
 
 Add this line to your application's Gemfile:
 
@@ -37,7 +37,7 @@ This gem exposes Ruby-ish versions of most of Sparkey's public data structures a
 Use these interfaces if you need more control over the specific behavior of Sparkey than the `Sparkey::Store` API provides.
 
 ## High Level
-The `Sparkey::Store` API provides a very small interface for using Sparkey as a generic key value store.
+The `Sparkey::Store` API provides a very small interface for using Sparkey as a generic key-value store.
 
 Use the `Sparkey::Store` API if you only need a fast persistent key-value store and don't want to delve into Sparkey specifics.
 
@@ -74,6 +74,8 @@ Use the `Sparkey::Store` API if you only need a fast persistent key-value store 
   sparkey.each do |key, value|
     collector[key] = value
   end
+
+  sparkey.close
 
   puts collector
   #=> { "first" => "Hello", "fourth" => "Again" }
