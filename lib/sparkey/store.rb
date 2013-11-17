@@ -58,31 +58,21 @@ class Sparkey::Store
     iterator.get_value
   end
 
-  def each_from_hash
-    log_reader = hash_reader.log_reader
-    iterator = Sparkey::LogIterator.new(log_reader, hash_reader)
-
-    loop do
-      iterator.hash_next
-
-      break unless iterator.active?
-
-      yield iterator.get_key, iterator.get_value
-    end
-
-    iterator.close
-  end
-  alias_method :each, :each_from_hash
-
-  def each_from_log
-    iterator = Sparkey::LogIterator.new(log_reader)
-
+  def each_with_iterator(iterator)
     loop do
       iterator.next
 
       break unless iterator.active?
 
-      yield iterator.get_key, iterator.get_value
+      yield iterator.get_key, iterator.get_value, iterator.type
+    end
+  end
+
+  def each
+    iterator = Sparkey::HashIterator.new(hash_reader)
+
+    each_with_iterator(iterator) do |key, value, _|
+      yield key, value
     end
 
     iterator.close
@@ -97,8 +87,6 @@ class Sparkey::Store
   end
 
   def flush
-    yield self if block_given?
-
     log_writer.flush
 
     # Reset the hash headers

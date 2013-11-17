@@ -1,9 +1,8 @@
 class Sparkey::LogIterator
   include Sparkey::Errors
 
-  def initialize(log_reader, hash_reader = nil)
+  def initialize(log_reader)
     @log_reader = log_reader
-    @hash_reader = hash_reader
 
     ptr = FFI::MemoryPointer.new(:pointer)
 
@@ -14,10 +13,6 @@ class Sparkey::LogIterator
 
   def next
     handle_status Sparkey::Native.logiter_next(@log_iter_ptr, @log_reader.ptr)
-  end
-
-  def hash_next
-    handle_status Sparkey::Native.logiter_hashnext(@log_iter_ptr, @hash_reader.ptr)
   end
 
   def state
@@ -38,6 +33,10 @@ class Sparkey::LogIterator
 
   def active?
     state == :iter_active
+  end
+
+  def entry_put?
+    type == :entry_put
   end
 
   def key_length
