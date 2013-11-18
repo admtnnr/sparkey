@@ -40,11 +40,11 @@ class Sparkey::LogIterator
   end
 
   def key_length
-    Sparkey::Native.logiter_keylen(@log_iter_ptr)
+    Sparkey::Native.logreader_maxkeylen(@log_reader.ptr)
   end
 
   def value_length
-    Sparkey::Native.logiter_valuelen(@log_iter_ptr)
+    Sparkey::Native.logreader_maxvaluelen(@log_reader.ptr)
   end
 
   def get_key

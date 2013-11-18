@@ -55,25 +55,25 @@ class Sparkey::Store
   def get(key)
     iterator = hash_reader.seek(key)
 
+    return unless iterator.active?
+
     iterator.get_value
   end
 
-  def each_with_iterator(iterator)
-    loop do
-      iterator.next
-
-      break unless iterator.active?
-
-      yield iterator.get_key, iterator.get_value, iterator.type
-    end
-  end
-
-  def each
+  def each_from_hash(&block)
     iterator = Sparkey::HashIterator.new(hash_reader)
+    typeless_block = ->(k, v, _){ block.call(k, v) }
 
-    each_with_iterator(iterator) do |key, value, _|
-      yield key, value
-    end
+    each_with_iterator(iterator, &typeless_block)
+
+    iterator.close
+  end
+  alias_method :each, :each_from_hash
+
+  def each_from_log(&block)
+    iterator = Sparkey::LogIterator.new(log_reader)
+
+    each_with_iterator(iterator, &block)
 
     iterator.close
   end
@@ -89,8 +89,20 @@ class Sparkey::Store
   def flush
     log_writer.flush
 
-    # Reset the hash headers
+    # Reset to flush cached headers
+    log_reader.open(filename)
     hash_writer.create(filename)
     hash_reader.open(filename)
+  end
+
+  private
+  def each_with_iterator(iterator)
+    loop do
+      iterator.next
+
+      break unless iterator.active?
+
+      yield iterator.get_key, iterator.get_value, iterator.type
+    end
   end
 end

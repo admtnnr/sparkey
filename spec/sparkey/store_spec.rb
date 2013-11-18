@@ -8,28 +8,81 @@ describe Sparkey::Store do
   before { @filename = random_filename }
   after  { delete(@filename) }
 
-  it "functions as a key-value store" do
-    sparkey = Sparkey::Store.create(@filename, :compression_snappy, 1000)
+  it "creates a Sparkey log file" do
+    sparkey = Sparkey::Store.create(@filename, :compression_snappy, 100)
+
+    File.exists?("#{@filename}.spl").must_equal(true)
+  end
+
+  it "sets values to keys" do
+    sparkey = Sparkey.create(@filename)
+
     sparkey.put("first", "Michael")
-    sparkey.put("second", "Adam")
-    sparkey.put("third", "Tanner")
-    sparkey.close
-
-    sparkey = Sparkey::Store.open(@filename)
-
-    sparkey.size.must_equal 3
-
-    sparkey.get("first").must_equal("Michael")
-    sparkey.delete("second")
     sparkey.flush
 
-    sparkey.size.must_equal 2
+    sparkey.get("first").must_equal("Michael")
+  end
 
-    collector = Hash.new
-    sparkey.each do |key, value|
-      collector[key] = value
+  it "deletes keys" do
+    sparkey = Sparkey.create(@filename)
+    sparkey.put("first", "Michael")
+    sparkey.put("middle", "Adam")
+    sparkey.flush
+
+    sparkey.delete("first")
+    sparkey.flush
+
+    sparkey.get("first").must_be_nil
+  end
+
+  it "has the size" do
+    sparkey = Sparkey.create(@filename)
+    sparkey.put("middle", "Adam")
+    sparkey.put("last", "Tanner")
+    sparkey.flush
+
+    sparkey.size.must_equal(2)
+  end
+
+  it "supports iterating through the log file" do
+    sparkey = Sparkey.create(@filename)
+    sparkey.put("first", "Michael")
+    sparkey.put("middle", "Adam")
+    sparkey.put("last", "Tanner")
+    sparkey.delete("middle")
+    sparkey.flush
+
+    collector = []
+
+    sparkey.each_from_log do |key, value, type|
+      collector << [key, value, type]
     end
 
-    collector.must_equal("first" => "Michael", "third" => "Tanner")
+    collector.must_equal([
+      ["first",  "Michael", :entry_put],
+      ["middle", "Adam",    :entry_put],
+      ["last",   "Tanner",  :entry_put],
+      ["middle", "",        :entry_delete]
+    ])
+  end
+
+  it "supports iterating through the hash file" do
+    sparkey = Sparkey.create(@filename)
+    sparkey.put("first", "Michael")
+    sparkey.put("middle", "Adam")
+    sparkey.put("last", "Tanner")
+    sparkey.delete("middle")
+    sparkey.flush
+
+    collector = []
+
+    sparkey.each_from_hash do |key, value|
+      collector << [key, value]
+    end
+
+    collector.must_equal([
+      ["first", "Michael"],
+      ["last",  "Tanner"]
+    ])
   end
 end
