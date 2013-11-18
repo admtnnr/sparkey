@@ -31,24 +31,40 @@ class Sparkey::LogIterator
     ptr.read_int
   end
 
+  def new?
+    state == :iter_new
+  end
+
   def active?
     state == :iter_active
+  end
+
+  def invalid?
+    state == :iter_invalid
+  end
+
+  def closed?
+    state == :iter_closed
   end
 
   def entry_put?
     type == :entry_put
   end
 
+  def entry_delete?
+    type == :entry_delete
+  end
+
   def key_length
-    Sparkey::Native.logreader_maxkeylen(@log_reader.ptr)
+    Sparkey::Native.logiter_keylen(@log_iter_ptr)
   end
 
   def value_length
-    Sparkey::Native.logreader_maxvaluelen(@log_reader.ptr)
+    Sparkey::Native.logiter_valuelen(@log_iter_ptr)
   end
 
   def get_key
-    wanted_key_length = key_length
+    wanted_key_length = @log_reader.max_key_length
     key_ptr = FFI::MemoryPointer.new(:uint8, wanted_key_length)
     actual_key_length_ptr = FFI::MemoryPointer.new(:uint64, 1)
 
@@ -58,7 +74,7 @@ class Sparkey::LogIterator
   end
 
   def get_value
-    wanted_value_length = value_length
+    wanted_value_length = @log_reader.max_value_length
     value_ptr = FFI::MemoryPointer.new(:uint8, wanted_value_length)
     actual_value_length_ptr = FFI::MemoryPointer.new(:uint64, 1)
 
