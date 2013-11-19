@@ -7,12 +7,11 @@ class Sparkey::LogReader
 
     handle_status Sparkey::Native.logreader_open(ptr, log_filename)
 
-    @log_reader_ptr = ptr.get_pointer(0)
+    @log_reader_ptr = ptr.read_pointer
   end
 
   def close
-    ptr = FFI::MemoryPointer.new(:pointer)
-    ptr.put_pointer(0, @log_reader_ptr)
+    ptr = FFI::MemoryPointer.new(:pointer).write_pointer(@log_reader_ptr)
 
     Sparkey::Native.logreader_close(ptr)
   end

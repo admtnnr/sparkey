@@ -8,6 +8,10 @@ module Sparkey
   def self.open(filename)
     Store.open(filename)
   end
+
+  def self.build_log_filename(hash_file)
+    Sparkey::Native.create_log_filename(hash_file)
+  end
 end
 
 require "sparkey/native"

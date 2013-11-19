@@ -49,7 +49,7 @@ class Sparkey::Store
   end
 
   def size
-    hash_reader.size
+    hash_reader.entry_count
   end
 
   def get(key)

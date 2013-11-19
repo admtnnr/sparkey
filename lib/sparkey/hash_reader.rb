@@ -8,30 +8,32 @@ class Sparkey::HashReader
 
     handle_status Sparkey::Native.hash_open(ptr, hash_filename, log_filename)
 
-    @hash_reader_ptr = ptr.get_pointer(0)
+    @hash_reader_ptr = ptr.read_pointer
   end
 
   def close
-    ptr = FFI::MemoryPointer.new(:pointer)
-    ptr.put_pointer(0, @hash_reader_ptr)
+    ptr = FFI::MemoryPointer.new(:pointer).write_pointer(@hash_reader_ptr)
 
     Sparkey::Native.hash_close(ptr)
   end
 
   def seek(key)
-    iterator = Sparkey::LogIterator.new(log_reader)
+    iterator = Sparkey::HashIterator.new(self)
 
-    key_length = key.size
-    key_ptr = FFI::MemoryPointer.new(:uint8, key_length)
-    key_ptr.put_bytes(0, key)
+    key_length = key.bytesize
+    key_ptr = FFI::MemoryPointer.new(:uint8, key_length).write_bytes(key)
 
     handle_status Sparkey::Native.hash_get(@hash_reader_ptr, key_ptr, key_length, iterator.ptr)
 
     iterator
   end
 
-  def size
+  def entry_count
     Sparkey::Native.hash_numentries(@hash_reader_ptr)
+  end
+
+  def collision_count
+    Sparkey::Native.hash_numcollisions(@hash_reader_ptr)
   end
 
   def log_reader
