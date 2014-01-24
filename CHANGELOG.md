@@ -1,3 +1,7 @@
+# Sparkey 1.2.0 (January 23, 2014)
+* `Sparkey` API
+  * Added `::build_index_filename` to build an index file name from a log file name.
+
 # Sparkey 1.1.0 (November 18, 2013)
 * `Sparkey` API
   * Added `::build_log_filename` to build a log file name from a hash file name.
