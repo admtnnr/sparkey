@@ -12,6 +12,10 @@ module Sparkey
   def self.build_log_filename(hash_file)
     Sparkey::Native.create_log_filename(hash_file)
   end
+
+  def self.build_index_filename(log_file)
+    Sparkey::Native.create_index_filename(log_file)
+  end
 end
 
 require "sparkey/native"

@@ -93,6 +93,7 @@ module Sparkey::Native
   attach_function :hash_numcollisions, :sparkey_hash_numcollisions, [:pointer], :uint64
 
   attach_function :create_log_filename, :sparkey_create_log_filename, [:string], :string
+  attach_function :create_index_filename, :sparkey_create_index_filename, [:string], :string
 
   attach_function :error_string, :sparkey_errstring, [RETURN_CODE], :string
 end

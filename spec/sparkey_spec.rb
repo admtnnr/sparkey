@@ -70,8 +70,12 @@ describe Sparkey do
     log_writer.close
   end
 
-  it "builds a log filename from a hash filename" do
+  it "builds a log filename from an index filename" do
     Sparkey.build_log_filename("sparkey.spi").must_equal("sparkey.spl")
+  end
+
+  it "builds an index filename from a log filename" do
+    Sparkey.build_index_filename("sparkey.spl").must_equal("sparkey.spi")
   end
 
   it "iterates over the log file" do
