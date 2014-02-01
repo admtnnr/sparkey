@@ -24,6 +24,14 @@ class Sparkey::LogReader
     Sparkey::Native.logreader_maxvaluelen(@log_reader_ptr)
   end
 
+  def compression_type
+    Sparkey::Native.logreader_compression_type(@log_reader_ptr)
+  end
+
+  def compression_blocksize
+    Sparkey::Native.logreader_compression_blocksize(@log_reader_ptr)
+  end
+
   def ptr=(ptr)
     @log_reader_ptr = ptr
   end

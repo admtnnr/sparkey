@@ -53,6 +53,20 @@ describe Sparkey do
     log_writer.close
   end
 
+  it "has a compression type and blocksize" do
+    log_writer = Sparkey::LogWriter.new
+    log_writer.create(@filename, :compression_snappy, 250)
+
+    log_reader = Sparkey::LogReader.new
+    log_reader.open(@filename)
+
+    log_reader.compression_type.must_equal(:compression_snappy)
+    log_reader.compression_blocksize.must_equal(250)
+
+    log_reader.close
+    log_writer.close
+  end
+
   it "has the max key length and max value length" do
     log_writer = Sparkey::LogWriter.new
     log_writer.create(@filename, :compression_none, 100)
