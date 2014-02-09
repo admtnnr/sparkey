@@ -1,3 +1,8 @@
+# Sparkey 1.3.0 (February 9, 2014)
+* `Sparkey::LogReader` API
+  * Added `#compression_type` to read the compression type from the log.
+  * Added `#compression_blocksize` to read the compression block size from the log.
+
 # Sparkey 1.2.0 (January 23, 2014)
 * `Sparkey` API
   * Added `::build_index_filename` to build an index file name from a log file name.
