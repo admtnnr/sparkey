@@ -65,6 +65,8 @@ module Sparkey::Native
   attach_function :logreader_close, :sparkey_logreader_close, [:pointer], :void
   attach_function :logreader_maxkeylen, :sparkey_logreader_maxkeylen, [:pointer], :uint64
   attach_function :logreader_maxvaluelen, :sparkey_logreader_maxvaluelen, [:pointer], :uint64
+  attach_function :logreader_compression_type, :sparkey_logreader_get_compression_type, [:pointer], COMPRESSION_TYPE
+  attach_function :logreader_compression_blocksize, :sparkey_logreader_get_compression_blocksize, [:pointer], :int
 
   attach_function :logiter_create, :sparkey_logiter_create, [:pointer, :pointer], RETURN_CODE
   attach_function :logiter_close, :sparkey_logiter_close, [:pointer], :void
