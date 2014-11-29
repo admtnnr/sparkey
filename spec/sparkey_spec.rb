@@ -22,7 +22,7 @@ describe Sparkey do
     hash_reader.open(@filename)
     iterator = hash_reader.seek("first")
 
-    iterator.get_value.must_equal("Michael")
+    iterator.value.must_equal("Michael")
 
     iterator.close
     hash_reader.close
@@ -117,13 +117,13 @@ describe Sparkey do
     log_iterator.key_length.must_equal(5)
     log_iterator.value_length.must_equal(7)
 
-    log_iterator.get_key.must_equal("first")
-    log_iterator.get_value.must_equal("Michael")
+    log_iterator.key.must_equal("first")
+    log_iterator.value.must_equal("Michael")
 
     log_iterator.next
 
     key, iterations = "", 0
-    log_iterator.get_key_chunk(8) do |chunk|
+    log_iterator.key_chunks(8) do |chunk|
       iterations += 1
       key << chunk
     end
@@ -132,7 +132,7 @@ describe Sparkey do
     iterations.must_equal(2)
 
     value, iterations = "", 0
-    log_iterator.get_value_chunk(8) do |chunk|
+    log_iterator.value_chunks(8) do |chunk|
       iterations += 1
       value << chunk
     end
@@ -178,15 +178,15 @@ describe Sparkey do
     hash_iterator.next
     hash_iterator.must_be(:active?)
 
-    hash_iterator.get_key.must_equal("salutation")
-    hash_iterator.get_value.must_equal("Mr.")
+    hash_iterator.key.must_equal("salutation")
+    hash_iterator.value.must_equal("Mr.")
 
     hash_iterator.next
-    hash_iterator.get_key.must_equal("middle")
-    hash_iterator.get_value.must_equal("Adam")
+    hash_iterator.key.must_equal("middle")
+    hash_iterator.value.must_equal("Adam")
 
     seek_iterator = hash_reader.seek("last")
-    seek_iterator.get_value.must_equal("Tanner")
+    seek_iterator.value.must_equal("Tanner")
 
     seek_iterator.next
     seek_iterator.must_be(:closed?)
