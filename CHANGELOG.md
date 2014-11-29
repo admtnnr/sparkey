@@ -1,3 +1,19 @@
+# Sparkey 2.0.0 (November 29, 2014)
+* `Sparkey::LogIterator` API
+  * Added `#compare_value` to compare the values of two iterators.
+  * Renamed `#get_key` to `#key`. **BREAKING**
+  * Renamed `#get_value` to `#value`. **BREAKING**
+  * Renamed `#get_key_chunk` to `#key_chunks`. **BREAKING**
+  * Renamed `#get_value_chunk` to `#value_chunks`. **BREAKING**
+  * Rename `#<=>` to `#compare_key` and aliased to `#<=>`.
+  * Enhanced `#key_chunks` to return an enumerator when no block is given.
+  * Enhanced `#value_chunks` to return an enumerator when no block is given.
+* `Sparkey::Store` API
+  * Renamed `#each_from_hash` to `#hash_entries` and aliased to `#each`. **BREAKING**
+  * Renamed `#each_from_log` to `#log_entries`. **BREAKING**
+  * Enhanced `#hash_entries` to return an enumerator when no block is given.
+  * Enhanced `#log_entries` to return an enumerator when no block is given.
+
 # Sparkey 1.3.0 (February 9, 2014)
 * `Sparkey::LogReader` API
   * Added `#compression_type` to read the compression type from the log.
