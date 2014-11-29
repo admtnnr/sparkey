@@ -31,12 +31,21 @@ class Sparkey::LogIterator
     Sparkey::Native.logiter_type(@log_iter_ptr)
   end
 
-  def <=>(iterator)
+  def compare_key(iterator)
     ptr = FFI::MemoryPointer.new(:int)
 
     handle_status Sparkey::Native.logiter_keycmp(@log_iter_ptr, iterator.ptr, @log_reader.ptr, ptr)
 
-    ptr.read_int
+    ptr.read_int <=> 0
+  end
+  alias_method :<=>, :compare_key
+
+  def compare_value(iterator)
+    ptr = FFI::MemoryPointer.new(:int)
+
+    handle_status Sparkey::Native.logiter_valuecmp(@log_iter_ptr, @log_reader.ptr, iterator.ptr, iterator.log_reader_ptr, ptr)
+
+    ptr.read_int <=> 0
   end
 
   def new?
@@ -130,4 +139,9 @@ class Sparkey::LogIterator
   def ptr
     @log_iter_ptr
   end
+
+  def log_reader_ptr
+    @log_reader.ptr
+  end
+  protected :log_reader_ptr
 end
