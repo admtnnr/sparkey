@@ -57,23 +57,38 @@ class Sparkey::Store
 
     return unless iterator.active?
 
-    iterator.get_value
+    iterator.value
   end
 
-  def each_from_hash(&block)
+  def hash_entries
     iterator = Sparkey::HashIterator.new(hash_reader)
-    typeless_block = ->(k, v, _){ block.call(k, v) }
 
-    each_with_iterator(iterator, &typeless_block)
+    loop do
+      return to_enum(:hash_entries) unless block_given?
+
+      iterator.next
+
+      break unless iterator.active?
+
+      yield iterator.key, iterator.value
+    end
 
     iterator.close
   end
-  alias_method :each, :each_from_hash
+  alias_method :each, :hash_entries
 
-  def each_from_log(&block)
+  def log_entries
     iterator = Sparkey::LogIterator.new(log_reader)
 
-    each_with_iterator(iterator, &block)
+    loop do
+      return to_enum(:log_entries) unless block_given?
+
+      iterator.next
+
+      break unless iterator.active?
+
+      yield iterator.key, iterator.value, iterator.type
+    end
 
     iterator.close
   end
@@ -93,16 +108,5 @@ class Sparkey::Store
     log_reader.open(filename)
     hash_writer.create(filename)
     hash_reader.open(filename)
-  end
-
-  private
-  def each_with_iterator(iterator)
-    loop do
-      iterator.next
-
-      break unless iterator.active?
-
-      yield iterator.get_key, iterator.get_value, iterator.type
-    end
   end
 end

@@ -52,13 +52,7 @@ describe Sparkey::Store do
     sparkey.delete("middle")
     sparkey.flush
 
-    collector = []
-
-    sparkey.each_from_log do |key, value, type|
-      collector << [key, value, type]
-    end
-
-    collector.must_equal([
+    sparkey.log_entries.to_a.must_equal([
       ["first",  "Michael", :entry_put],
       ["middle", "Adam",    :entry_put],
       ["last",   "Tanner",  :entry_put],
@@ -74,13 +68,7 @@ describe Sparkey::Store do
     sparkey.delete("middle")
     sparkey.flush
 
-    collector = []
-
-    sparkey.each_from_hash do |key, value|
-      collector << [key, value]
-    end
-
-    collector.must_equal([
+    sparkey.hash_entries.to_a.must_equal([
       ["first", "Michael"],
       ["last",  "Tanner"]
     ])

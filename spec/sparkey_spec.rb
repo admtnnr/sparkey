@@ -22,7 +22,7 @@ describe Sparkey do
     hash_reader.open(@filename)
     iterator = hash_reader.seek("first")
 
-    iterator.get_value.must_equal("Michael")
+    iterator.value.must_equal("Michael")
 
     iterator.close
     hash_reader.close
@@ -117,13 +117,13 @@ describe Sparkey do
     log_iterator.key_length.must_equal(5)
     log_iterator.value_length.must_equal(7)
 
-    log_iterator.get_key.must_equal("first")
-    log_iterator.get_value.must_equal("Michael")
+    log_iterator.key.must_equal("first")
+    log_iterator.value.must_equal("Michael")
 
     log_iterator.next
 
     key, iterations = "", 0
-    log_iterator.get_key_chunk(8) do |chunk|
+    log_iterator.key_chunks(8) do |chunk|
       iterations += 1
       key << chunk
     end
@@ -132,7 +132,7 @@ describe Sparkey do
     iterations.must_equal(2)
 
     value, iterations = "", 0
-    log_iterator.get_value_chunk(8) do |chunk|
+    log_iterator.value_chunks(8) do |chunk|
       iterations += 1
       value << chunk
     end
@@ -178,15 +178,15 @@ describe Sparkey do
     hash_iterator.next
     hash_iterator.must_be(:active?)
 
-    hash_iterator.get_key.must_equal("salutation")
-    hash_iterator.get_value.must_equal("Mr.")
+    hash_iterator.key.must_equal("salutation")
+    hash_iterator.value.must_equal("Mr.")
 
     hash_iterator.next
-    hash_iterator.get_key.must_equal("middle")
-    hash_iterator.get_value.must_equal("Adam")
+    hash_iterator.key.must_equal("middle")
+    hash_iterator.value.must_equal("Adam")
 
     seek_iterator = hash_reader.seek("last")
-    seek_iterator.get_value.must_equal("Tanner")
+    seek_iterator.value.must_equal("Tanner")
 
     seek_iterator.next
     seek_iterator.must_be(:closed?)
@@ -201,7 +201,7 @@ describe Sparkey do
     log_writer.close
   end
 
-  it "compares iterators" do
+  it "compares iterator keys" do
     log_writer = Sparkey::LogWriter.new
     log_writer.create(@filename, :compression_none, 100)
 
@@ -216,20 +216,68 @@ describe Sparkey do
     first_iterator = Sparkey::LogIterator.new(log_reader)
     second_iterator = Sparkey::LogIterator.new(log_reader)
 
-    first_iterator.next
-    second_iterator.next
+    first_iterator.next   # first
+    second_iterator.next  # first
 
-    comparison = first_iterator <=> second_iterator
+    comparison = first_iterator.compare_key(second_iterator)
     comparison.must_equal(0)
 
-    first_iterator.next
-    comparison = first_iterator <=> second_iterator
+    first_iterator.next   # middle
+
+    comparison = first_iterator.compare_key(second_iterator)
     comparison.must_equal(1)
 
-    first_iterator.reset
-    first_iterator.next
-    second_iterator.next
-    comparison = first_iterator <=> second_iterator
+    first_iterator.reset  # ...
+    first_iterator.next   # first
+    second_iterator.next  # middle
+
+    comparison = first_iterator.compare_key(second_iterator)
     comparison.must_equal(-1)
+
+    second_iterator.close
+    first_iterator.close
+    log_reader.close
+    log_writer.close
+  end
+
+  it "compares iterator values" do
+    log_writer = Sparkey::LogWriter.new
+    log_writer.create(@filename, :compression_none, 100)
+
+    log_writer.put("first", "Michael")
+    log_writer.put("middle", "Adam")
+    log_writer.put("middle_again", "Adam")
+    log_writer.put("last", "Tanner")
+    log_writer.flush
+
+    log_reader = Sparkey::LogReader.new
+    log_reader.open(@filename)
+
+    first_iterator = Sparkey::LogIterator.new(log_reader)
+    second_iterator = Sparkey::LogIterator.new(log_reader)
+
+    first_iterator.next   # Michael
+    second_iterator.next  # Michael
+    second_iterator.next  # Adam
+
+    comparison = first_iterator.compare_value(second_iterator)
+    comparison.must_equal(1)
+
+    first_iterator.next   # Adam
+    second_iterator.next  # Adam
+
+    comparison = first_iterator.compare_value(second_iterator)
+    comparison.must_equal(0)
+
+    first_iterator.next   # Adam
+    second_iterator.next  # Tanner
+
+    comparison = first_iterator.compare_value(second_iterator)
+    comparison.must_equal(-1)
+
+    second_iterator.close
+    first_iterator.close
+    log_reader.close
+    log_writer.close
   end
 end

@@ -79,6 +79,7 @@ module Sparkey::Native
   attach_function :logiter_fill_key, :sparkey_logiter_fill_key, [:pointer, :pointer, :uint64, :pointer, :pointer], RETURN_CODE
   attach_function :logiter_fill_value, :sparkey_logiter_fill_value, [:pointer, :pointer, :uint64, :pointer, :pointer], RETURN_CODE
   attach_function :logiter_keycmp, :sparkey_logiter_keycmp, [:pointer, :pointer, :pointer, :pointer], RETURN_CODE
+  attach_function :logiter_valuecmp, :sparkey_logiter_valuecmp, [:pointer, :pointer, :pointer, :pointer, :pointer], RETURN_CODE
   attach_function :logiter_state, :sparkey_logiter_state, [:pointer], ITER_STATE
   attach_function :logiter_type, :sparkey_logiter_type, [:pointer], ENTRY_TYPE
   attach_function :logiter_keylen, :sparkey_logiter_keylen, [:pointer], :uint64

@@ -31,12 +31,21 @@ class Sparkey::LogIterator
     Sparkey::Native.logiter_type(@log_iter_ptr)
   end
 
-  def <=>(iterator)
+  def compare_key(iterator)
     ptr = FFI::MemoryPointer.new(:int)
 
     handle_status Sparkey::Native.logiter_keycmp(@log_iter_ptr, iterator.ptr, @log_reader.ptr, ptr)
 
-    ptr.read_int
+    ptr.read_int <=> 0
+  end
+  alias_method :<=>, :compare_key
+
+  def compare_value(iterator)
+    ptr = FFI::MemoryPointer.new(:int)
+
+    handle_status Sparkey::Native.logiter_valuecmp(@log_iter_ptr, @log_reader.ptr, iterator.ptr, iterator.log_reader_ptr, ptr)
+
+    ptr.read_int <=> 0
   end
 
   def new?
@@ -71,7 +80,7 @@ class Sparkey::LogIterator
     Sparkey::Native.logiter_valuelen(@log_iter_ptr)
   end
 
-  def get_key
+  def key
     max_key_length = @log_reader.max_key_length
     buffer_ptr = FFI::MemoryPointer.new(:uint8, max_key_length)
     buffer_length_ptr = FFI::MemoryPointer.new(:uint64)
@@ -81,11 +90,13 @@ class Sparkey::LogIterator
     buffer_ptr.read_bytes(buffer_length_ptr.read_uint64)
   end
 
-  def get_key_chunk(chunk_size = 1024)
+  def key_chunks(chunk_size = 1024)
     buffer = FFI::Buffer.alloc_out(:uint8, chunk_size)
     buffer_length_ptr = FFI::MemoryPointer.new(:uint64)
 
     loop do
+      return to_enum(:key_chunks) unless block_given?
+
       handle_status Sparkey::Native.logiter_keychunk(@log_iter_ptr, @log_reader.ptr, chunk_size, buffer, buffer_length_ptr)
 
       buffer_length = buffer_length_ptr.read_uint64
@@ -96,7 +107,7 @@ class Sparkey::LogIterator
     end
   end
 
-  def get_value
+  def value
     max_value_length = @log_reader.max_value_length
     buffer_ptr = FFI::MemoryPointer.new(:uint8, max_value_length)
     buffer_length_ptr = FFI::MemoryPointer.new(:uint64)
@@ -106,11 +117,13 @@ class Sparkey::LogIterator
     buffer_ptr.read_bytes(buffer_length_ptr.read_uint64)
   end
 
-  def get_value_chunk(chunk_size = 1024)
+  def value_chunks(chunk_size = 1024)
     buffer = FFI::Buffer.alloc_out(:uint8, chunk_size)
     buffer_length_ptr = FFI::MemoryPointer.new(:uint64)
 
     loop do
+      return to_enum(:value_chunks) unless block_given?
+
       handle_status Sparkey::Native.logiter_valuechunk(@log_iter_ptr, @log_reader.ptr, chunk_size, buffer, buffer_length_ptr)
 
       buffer_length = buffer_length_ptr.read_uint64
@@ -130,4 +143,9 @@ class Sparkey::LogIterator
   def ptr
     @log_iter_ptr
   end
+
+  def log_reader_ptr
+    @log_reader.ptr
+  end
+  protected :log_reader_ptr
 end
